@@ -1,0 +1,25 @@
+//@version=5
+strategy("KDJ Strategy", overlay=true)
+
+// 定义KDJ指标参数
+kdjLength = input(14, title="KDJ Length")
+kdjOverbought = input(80, title="KDJ Overbought Level")
+kdjOversold = input(20, title="KDJ Oversold Level")
+
+// 计算KDJ指标
+highestHigh = ta.highest(high, kdjLength)
+lowestLow = ta.lowest(low, kdjLength)
+rsv = (close - lowestLow) / (highestHigh - lowestLow) * 100
+k = ta.sma(rsv, 3)
+d = ta.sma(k, 3)
+j = 3 * k - 2 * d
+
+// 定义交易信号
+enterLong = ta.crossover(k, d) and ta.crossover(j, kdjOversold)
+exitLong = ta.crossunder(k, d) and ta.crossunder(j, kdjOverbought)
+
+// 执行交易信号
+if enterLong
+    strategy.entry("Long", strategy.long)
+if exitLong
+    strategy.close("Long")
